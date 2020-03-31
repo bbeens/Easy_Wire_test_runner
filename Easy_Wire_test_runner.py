@@ -11,11 +11,11 @@ import statistics
 
 class EasyWire:
     """
-    Class
+    base class for running automated tests.
 
     """
 
-    def __init__(self, hv_status=True):
+    def __init__(self, hv_status=True, test_iterations=20):
         self.title = u'Cirris Easy-Wire'
         self.test_category_name = 'EW - Test Time'
         self.class_name = 'TInitialDialog'
@@ -25,6 +25,7 @@ class EasyWire:
         self.ew_test_list_window = self.app_uia[u'Cirris Easy-Wire'].child_window(class_name='TListView')
         self.test_list = []
         self.lv_test_time = []
+        self.test_iterations = test_iterations
         if hv_status:
             self.hv_status = True
             self.hv_test_time = []
@@ -167,15 +168,14 @@ class EasyWire:
         test_window_handle.Done.click()
         return lv_start, lv_stop, hv_start, hv_stop
 
-    def test_lv_only(self, test_iterations=20):
+    def test_lv_only(self):
         """
         method to cycle through lv testing only.  Prints output to console using maths function.
-        :param test_iterations: number of iteration for each test in list.  defaults to 20
         :return:
         """
         self.test_list = self.get_test_list(category_name='EW - Test Time')
         for test_num, test in enumerate(self.test_list, 1):
-            for iter_num in range(1, test_iterations + 1):
+            for iter_num in range(1, self.test_iterations + 1):
                 print(f'Test #{test_num} - Test name: {test} - iteration: {iter_num}')
                 self.select_current_test(test)
                 test_window = self.app[f'Test Program - [{test} - Signature Single Test]']
@@ -192,10 +192,10 @@ class EasyWire:
                 self.lv_test_time.append(round(lv_stop - lv_start, 3))
         self.maths()
 
-    def test_lv_hv(self, test_iterations=20):
+    def test_lv_hv(self):
         """
         method to cycle through lv and hv testing.  Prints output to console using maths function.
-        :param test_iterations: number of iteration for each test in list.  defaults to 20
+
         :return:
         """
         lv_stop = 0
@@ -204,7 +204,7 @@ class EasyWire:
         hv_start = 0
         self.test_list = self.get_test_list(category_name='EW - Time Test lvhv')
         for test_num, test in enumerate(self.test_list, 1):
-            for iter_num in range(1, test_iterations + 1):
+            for iter_num in range(1, self.test_iterations + 1):
                 self.select_current_test(test)
                 print(f'Test #{test_num} - Test name: {test} - iteration: {iter_num}')
                 test_window = self.app.window(title_re=".*" + test + ".*")
@@ -230,7 +230,3 @@ class EasyWire:
             print(f'HV Values Median: {statistics.median(self.hv_test_time)}')
             print(f'HV Values Median_low: {statistics.median_low(self.hv_test_time)}')
             print(f'HV Values Median_high: {statistics.median_high(self.hv_test_time)}')
-
-
-E_lv_hv = EasyWire(hv_status=True)
-E_lv_hv.test_lv_hv()
