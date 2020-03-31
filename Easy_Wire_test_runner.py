@@ -71,10 +71,10 @@ class EasyWire:
             return app
         except(application.ProcessNotFoundError, application.findwindows.ElementNotFoundError):
             app = Application().start(self.ew_path)
-            self.login(user='Master Login', tester_type='1100/Easy Touch', password='')
+            self.login(app=app, user='Master Login', tester_type='1100/Easy Touch', password='')
             return app
 
-    def login(self, user='Master Login', tester_type='1100/Easy Touch', password=''):
+    def login(self, app, user='Master Login', tester_type='1100/Easy Touch', password=''):
         """
         method to log into easywire.
 
@@ -84,21 +84,21 @@ class EasyWire:
         :return: None
         """
 
-        self.app.UserLogin.wait('ready')
-        self.app.UserLogin.ComboBox.select(user)
-        self.app.UserLogin.TEdit.set_text(password)
+        app.UserLogin.wait('ready')
+        app.UserLogin.ComboBox.select(user)
+        app.UserLogin.TEdit.set_text(password)
 
         try:
-            self.app.UserLogin.ComboBox2.select(tester_type)
+            app.UserLogin.ComboBox2.select(tester_type)
         except ValueError:
             pass
 
-        self.app.Userlogin.OK.click()
+        app.Userlogin.OK.click()
         try:
-            self.app.Hardware.wait('ready')
+            app.Hardware.wait('ready')
             print("Hardware error")
-            print(self.app.Hardware.Edit.TextBlock())
-            self.app.Hardware.OK.click()
+            print(app.Hardware.Edit.TextBlock())
+            app.Hardware.OK.click()
         except timings.TimeoutError:
             pass
 
@@ -187,7 +187,7 @@ class EasyWire:
                         print('timeout error triggered.')
                         time.sleep(1)
                 lv_start, lv_stop = self.confirm_lv_test_window_good(test_window_handle=test_window,
-                                                              exception_to_handle=timings.TimeoutError)
+                                                                     exception_to_handle=timings.TimeoutError)
                 test_window.Done.click()
                 self.lv_test_time.append(round(lv_stop - lv_start, 3))
         self.maths()
@@ -209,8 +209,8 @@ class EasyWire:
                 print(f'Test #{test_num} - Test name: {test} - iteration: {iter_num}')
                 test_window = self.app.window(title_re=".*" + test + ".*")
                 lv_start, lv_stop, hv_start, hv_stop = self.confirm_lv_hv_test_window_good(
-                                                                test_window_handle=test_window,
-                                                                exception_to_handle=timings.TimeoutError)
+                    test_window_handle=test_window,
+                    exception_to_handle=timings.TimeoutError)
             self.lv_test_time.append(round(lv_stop - lv_start, 3))
             self.hv_test_time.append(round(hv_stop - hv_start, 3))
         self.maths()
